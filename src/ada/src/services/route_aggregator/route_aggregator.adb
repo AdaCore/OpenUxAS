@@ -5,7 +5,7 @@ package body Route_Aggregator with SPARK_Mode is
 
    pragma Assertion_Policy (Ignore);
 
-   --  Lemmas used to factor out reasonning about the redefined model of
+   --  Lemmas used to factor out reasoning about the redefined model of
    --  Int64_Formal_Set_Maps
 
    -------------------
@@ -46,7 +46,7 @@ package body Route_Aggregator with SPARK_Mode is
       null;
    end Lift_From_Keys_To_Model;
 
-   --  Subprograms wraping insertion and deletion in m_pendingRoute. They
+   --  Subprograms wrapping insertion and deletion in m_pendingRoute. They
    --  restate part of the postcondition of the callee, but also reestablish
    --  the predicate of Route_Aggregator_State and compute the effect of the
    --  modification on planToRoute.
@@ -195,12 +195,14 @@ package body Route_Aggregator with SPARK_Mode is
    -----------
 
    function Model (M : Int64_Formal_Set_Map) return Int_Set_Maps_M.Map is
+
       function Model (S : Int64_Formal_Set) return Int64_Set with
         Post =>
           (for all E of Model'Result => Contains (S, E))
           and
-            (for all E of S => Contains (Model'Result, E))
-      is
+          (for all E of S => Contains (Model'Result, E));
+
+      function Model (S : Int64_Formal_Set) return Int64_Set is
          Res : Int64_Set;
       begin
          for C in S loop
@@ -303,8 +305,6 @@ package body Route_Aggregator with SPARK_Mode is
    --------------------------------
    -- Handle_Route_Plan_Response --
    --------------------------------
-
-   --  Actual implementation of the service
 
    procedure Handle_Route_Plan_Response
      (Mailbox  : in out Route_Aggregator_Mailbox;
@@ -811,11 +811,14 @@ package body Route_Aggregator with SPARK_Mode is
       Lift_From_Keys_To_Model (State.m_pendingAutoReq);
    end Check_All_Route_Plans_PendingAutoReq;
 
+   ---------------------------
+   -- Check_All_Route_Plans --
+   ---------------------------
+
    procedure Check_All_Route_Plans
      (Mailbox : in out Route_Aggregator_Mailbox;
       State   : in out Route_Aggregator_State)
    is
-
    begin
       Check_All_Route_Plans_PendingRoute (Mailbox, State);
       Check_All_Route_Plans_PendingAutoReq (Mailbox, State);
@@ -1189,7 +1192,7 @@ package body Route_Aggregator with SPARK_Mode is
          end;
       end loop;
 
-      sendBroadcastMessage(Mailbox, matrix);
+      SendBroadcastMessage(Mailbox, matrix);
       Clear (m_taskOptions);
    end SendMatrix;
 
@@ -1319,7 +1322,7 @@ package body Route_Aggregator with SPARK_Mode is
               or else PlanRequest_Sent (Id)));
 
       -- send the results of the query
-      sendBroadcastMessage(Mailbox, Response);
+      SendBroadcastMessage(Mailbox, Response);
       pragma Assume (Length (History) < Count_Type'Last, "We still have room for a new event in History");
       History := Add (History, (Kind => Send_RouteResponse, Id => Response.ResponseID));
    end SendRouteResponse;

@@ -1,11 +1,11 @@
-with AVTAS.Lmcp.Object.SPARK_Boundary;              use AVTAS.Lmcp.Object.SPARK_Boundary;
+with AVTAS.LMCP.Object.SPARK_Boundary;              use AVTAS.LMCP.Object.SPARK_Boundary;
 
 with AFRL.CMASI.Enumerations;
-with AFRl.CMASI.AutomationResponse;                 use AFRl.CMASI.AutomationResponse;
+with AFRL.CMASI.AutomationResponse;                 use AFRL.CMASI.AutomationResponse;
 with AFRL.CMASI.AutomationRequest;                  use AFRL.CMASI.AutomationRequest;
 with AFRL.CMASI.EntityConfiguration;                use AFRL.CMASI.EntityConfiguration;
 with AFRL.CMASI.EntityState;                        use AFRL.CMASI.EntityState;
-with AFRL.CMASI.LmcpTask;                           use AFRL.CMASI.LmcpTask;
+with AFRL.CMASI.lmcpTask;                           use AFRL.CMASI.lmcpTask;
 with AFRL.CMASI.KeepInZone;                         use AFRL.CMASI.KeepInZone;
 with AFRL.CMASI.KeepOutZone;                        use AFRL.CMASI.KeepOutZone;
 with AFRL.CMASI.RemoveTasks;                        use AFRL.CMASI.RemoveTasks;
@@ -19,10 +19,10 @@ with AFRL.Impact.LineOfInterest;                    use AFRL.Impact.LineOfIntere
 with AFRL.Impact.AreaOfInterest;                    use AFRL.Impact.AreaOfInterest;
 with AFRL.Impact.ImpactAutomationResponse;          use AFRL.Impact.ImpactAutomationResponse;
 
-with UxAS.Messages.Lmcptask.TaskAutomationRequest;  use UxAS.Messages.Lmcptask.TaskAutomationRequest;
-with UxAS.Messages.Lmcptask.TaskAutomationResponse; use UxAS.Messages.Lmcptask.TaskAutomationResponse;
-with UxAS.Messages.Lmcptask.TaskInitialized;        use UxAS.Messages.Lmcptask.TaskInitialized;
-with UxAS.Messages.Lmcptask.PlanningState;          use UxAS.Messages.Lmcptask.PlanningState;
+with UxAS.Messages.lmcptask.TaskAutomationRequest;  use UxAS.Messages.lmcptask.TaskAutomationRequest;
+with UxAS.Messages.lmcptask.TaskAutomationResponse; use UxAS.Messages.lmcptask.TaskAutomationResponse;
+with UxAS.Messages.lmcptask.TaskInitialized;        use UxAS.Messages.lmcptask.TaskInitialized;
+with UxAS.Messages.lmcptask.PlanningState;          use UxAS.Messages.lmcptask.PlanningState;
 
 with UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SPARK;
 
@@ -49,7 +49,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
    --  Refactored out of Process_Received_LMCP_Message for readability, comprehension, etc.
    procedure Handle_InitializedTasks_Msg
      (This : in out Automation_Request_Validator_Service;
-      Job  : LmcpTask_Any);
+      Job  : lmcpTask_Any);
 
    --  Refactored out of Process_Received_LMCP_Message for readability, comprehension, etc.
    procedure Handle_ServiceStatus_Msg
@@ -118,7 +118,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       --
       --  if(!m_errorResponse->getOriginalResponse())
       if This.Error_Response.getOriginalResponse = null then
-      --  m_errorResponse->setOriginalResponse(new afrl::cmasi::AutomationResponse);
+      --  m_errorResponse->setOriginalResponse(new AFRL::cmasi::AutomationResponse);
          This.Error_Response.setOriginalResponse (new AutomationResponse);
       end if;
    end Construct;
@@ -161,21 +161,21 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       This.Max_Response_Time := UInt32'Max (This.Max_Response_Time, 10);
 
       --  // translate regular, impact, and task automation requests to unique automation requests
-      --  addSubscriptionAddress(afrl::cmasi::AutomationRequest::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::AutomationRequest::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.AutomationRequest.Subscription, Unused);
-      --  addSubscriptionAddress(afrl::impact::ImpactAutomationRequest::Subscription);
+      --  addSubscriptionAddress(AFRL::impact::ImpactAutomationRequest::Subscription);
       This.Add_Subscription_Address (AFRL.Impact.ImpactAutomationRequest.Subscription, Unused);
       --  addSubscriptionAddress(uxas::messages::task::TaskAutomationRequest::Subscription);
-      This.Add_Subscription_Address (UxAS.Messages.Lmcptask.TaskAutomationRequest.Subscription, Unused);
+      This.Add_Subscription_Address (UxAS.Messages.lmcptask.TaskAutomationRequest.Subscription, Unused);
 
       --  // respond with appropriate automation response based on unique response
       --  addSubscriptionAddress(uxas::messages::task::UniqueAutomationResponse::Subscription);
-      This.Add_Subscription_Address (UxAS.Messages.Lmcptask.UniqueAutomationResponse.Subscription, Unused);
+      This.Add_Subscription_Address (UxAS.Messages.lmcptask.UniqueAutomationResponse.Subscription, Unused);
 
       --  // track all entity configurations
-      --  addSubscriptionAddress(afrl::cmasi::EntityConfiguration::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::EntityConfiguration::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.EntityConfiguration.Subscription, Unused);
-      --  std::vector< std::string > childconfigs = afrl::cmasi::EntityConfigurationDescendants();
+      --  std::vector< std::string > childconfigs = AFRL::cmasi::EntityConfigurationDescendants();
       --  for(auto child : childconfigs)
       --      addSubscriptionAddress(child);
       for Descendant of EntityConfiguration_Descendants loop
@@ -183,9 +183,9 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       end loop;
 
       --  // track all entity states
-      --  addSubscriptionAddress(afrl::cmasi::EntityState::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::EntityState::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.EntityState.Subscription, Unused);
-      --  std::vector< std::string > childstates = afrl::cmasi::EntityStateDescendants();
+      --  std::vector< std::string > childstates = AFRL::cmasi::EntityStateDescendants();
       --  for(auto child : childstates)
       --      addSubscriptionAddress(child);
       for Descendant of EntityState_Descendants loop
@@ -193,39 +193,39 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       end loop;
 
       --  // track airspace constraints
-      --  addSubscriptionAddress(afrl::cmasi::OperatingRegion::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::OperatingRegion::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.OperatingRegion.Subscription, Unused);
-      --  addSubscriptionAddress(afrl::cmasi::KeepInZone::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::KeepInZone::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.KeepInZone.Subscription, Unused);
-      --  addSubscriptionAddress(afrl::cmasi::KeepOutZone::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::KeepOutZone::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.KeepOutZone.Subscription, Unused);
 
       --  // track indicated locations of interest
-      --  addSubscriptionAddress(afrl::impact::AreaOfInterest::Subscription);
+      --  addSubscriptionAddress(AFRL::impact::AreaOfInterest::Subscription);
       This.Add_Subscription_Address (AFRL.Impact.AreaOfInterest.Subscription, Unused);
-      --  addSubscriptionAddress(afrl::impact::LineOfInterest::Subscription);
+      --  addSubscriptionAddress(AFRL::impact::LineOfInterest::Subscription);
       This.Add_Subscription_Address (AFRL.Impact.LineOfInterest.Subscription, Unused);
-      --  addSubscriptionAddress(afrl::impact::PointOfInterest::Subscription);
+      --  addSubscriptionAddress(AFRL::impact::PointOfInterest::Subscription);
       This.Add_Subscription_Address (AFRL.Impact.PointOfInterest.Subscription, Unused);
 
       --  // track all tasks
-      --  addSubscriptionAddress(afrl::cmasi::Task::Subscription);
-      This.Add_Subscription_Address (AFRL.CMASI.LmcpTask.Subscription, Unused);
-      --  std::vector< std::string > childtasks = afrl::cmasi::TaskDescendants();
+      --  addSubscriptionAddress(AFRL::cmasi::Task::Subscription);
+      This.Add_Subscription_Address (AFRL.CMASI.lmcpTask.Subscription, Unused);
+      --  std::vector< std::string > childtasks = AFRL::cmasi::TaskDescendants();
       --  for(auto child : childtasks)
       --      addSubscriptionAddress(child);
-      for Descendant of Lmcptask_Descendants loop
+      for Descendant of lmcpTask_Descendants loop
          This.Add_Subscription_Address (Descendant, Unused);
       end loop;
 
       --  // task removal and initialization
-      --  addSubscriptionAddress(afrl::cmasi::RemoveTasks::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::RemoveTasks::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.RemoveTasks.Subscription, Unused);
       --  addSubscriptionAddress(uxas::messages::task::TaskInitialized::Subscription);
-      This.Add_Subscription_Address (UxAS.Messages.Lmcptask.TaskInitialized.Subscription, Unused);
+      This.Add_Subscription_Address (UxAS.Messages.lmcptask.TaskInitialized.Subscription, Unused);
 
       --  // track errors during automation request pipeline
-      --  addSubscriptionAddress(afrl::cmasi::ServiceStatus::Subscription);
+      --  addSubscriptionAddress(AFRL::cmasi::ServiceStatus::Subscription);
       This.Add_Subscription_Address (AFRL.CMASI.ServiceStatus.Subscription, Unused);
 
       --  return true;
@@ -252,8 +252,8 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
    -------------------------------
 
    function Is_Any_Automation_Request (Msg : Object_Any) return Boolean is
-      --  else if (afrl::cmasi::isAutomationRequest(receivedLmcpMessage->m_object) ||
-      --          afrl::impact::isImpactAutomationRequest(receivedLmcpMessage->m_object) ||
+      --  else if (AFRL::cmasi::isAutomationRequest(receivedLmcpMessage->m_object) ||
+      --          AFRL::impact::isImpactAutomationRequest(receivedLmcpMessage->m_object) ||
       --          uxas::messages::task::isTaskAutomationRequest(receivedLmcpMessage->m_object))
       (Msg.all in AutomationRequest'Class       or
        Msg.all in ImpactAutomationRequest'Class or
@@ -276,8 +276,8 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       elsif Received_Message.Payload.all in EntityState'Class then
          This.Handle_StateEntity_Msg (EntityState_Any (Received_Message.Payload));
 
-      elsif Received_Message.Payload.all in LmcpTask'Class then
-         This.Handle_InitializedTasks_Msg (LmcpTask_Any (Received_Message.Payload));
+      elsif Received_Message.Payload.all in lmcpTask'Class then
+         This.Handle_InitializedTasks_Msg (lmcpTask_Any (Received_Message.Payload));
 
       elsif Received_Message.Payload.all in ServiceStatus'Class then
          This.Handle_ServiceStatus_Msg (Received_Message);
@@ -294,7 +294,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       elsif Received_Message.Payload.all in LineOfInterest'Class then
          This.Handle_LineOfInterest_Msg (Received_Message);
 
-      elsif Received_Message.Payload.all in PointofInterest'Class then
+      elsif Received_Message.Payload.all in PointOfInterest'Class then
          This.Handle_PointofInterest_Msg (Received_Message);
 
       elsif Received_Message.Payload.all in KeepInZone'Class then
@@ -328,7 +328,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       use Int64_Sets;
    begin
       --  m_availableConfigurationEntityIds.insert(entityConfig->getID());
-      Include (This.Configs.Available_Configuration_Entity_Ids, EntityConfig.GetID);
+      Include (This.Configs.Available_Configuration_Entity_Ids, EntityConfig.getID);
    end Handle_EntityConfig_Msg;
 
    ----------------------------
@@ -342,7 +342,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       use Int64_Sets;
    begin
       --  m_availableStateEntityIds.insert(entityState->getID());
-      Include (This.Configs.Available_State_Entity_Ids, State.GetID);
+      Include (This.Configs.Available_State_Entity_Ids, State.getID);
    end Handle_StateEntity_Msg;
 
    ---------------------------------
@@ -351,22 +351,22 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
 
    procedure Handle_InitializedTasks_Msg
      (This : in out Automation_Request_Validator_Service;
-      Job  : LmcpTask_Any)
+      Job  : lmcpTask_Any)
    is
       use Int64_Sets;
    begin
       --  m_availableInitializedTasks.erase(task->getTaskID());
-      Exclude (This.Configs.Available_Initialized_Tasks, Job.GetTaskID);
+      Exclude (This.Configs.Available_Initialized_Tasks, Job.getTaskID);
       --  m_availableTasks[task->getTaskID()] = task;
       declare
          Inserted : Boolean;
          C        : Int64_CMASI_Task_Maps.Cursor;
-         use AFRL.Cmasi.LmcpTask.SPARK_Boundary;
+         use AFRL.CMASI.lmcpTask.SPARK_Boundary;
          Wrapped_Job : constant Task_Kind_And_Id := Get_Kind_And_Id (Job);
       begin
          Int64_CMASI_Task_Maps.Insert
            (This.Configs.Available_Tasks,
-            Key      =>  Job.GetTaskID,
+            Key      =>  Job.getTaskID,
             New_Item => Wrapped_Job,
             Position => C,
             Inserted => Inserted);
@@ -385,18 +385,18 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       Msg  : Any_LMCP_Message)
    is
       --  log any error messages in the assignment pipeline
-      --  auto sstatus = std::static_pointer_cast<afrl::cmasi::ServiceStatus>(receivedLmcpMessage->m_object);
+      --  auto sstatus = std::static_pointer_cast<AFRL::cmasi::ServiceStatus>(receivedLmcpMessage->m_object);
       SStatus : constant ServiceStatus_Any := ServiceStatus_Any (Msg.Payload);
       use AFRL.CMASI.Enumerations;
       Clone   : KeyValuePair_Acc;
    begin
-      --  if(sstatus->getStatusType() == afrl::cmasi::ServiceStatusType::Error)
-      if SStatus.GetStatusType = Error then
+      --  if(sstatus->getStatusType() == AFRL::cmasi::ServiceStatusType::Error)
+      if SStatus.getStatusType = Error then
          --  for(auto kvp : sstatus->getInfo())
-         for KVP of SStatus.GetInfo.all loop
+         for KVP of SStatus.getInfo.all loop
             --  m_errorResponse->getOriginalResponse()->getInfo().push_back(kvp->clone());
             Clone := new KeyValuePair'(KVP.all);
-            afrl.cmasi.AutomationResponse.Vect_KeyValuePair_Acc.Append (This.Error_Response.GetOriginalResponse.GetInfo.all, Clone);
+            AFRL.CMASI.AutomationResponse.Vect_KeyValuePair_Acc.Append (This.Error_Response.getOriginalResponse.getInfo.all, Clone);
          end loop;
       end if;
    end Handle_ServiceStatus_Msg;
@@ -409,13 +409,13 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto removeTasks = std::static_pointer_cast<afrl::cmasi::RemoveTasks>(receivedLmcpMessage->m_object);
+      --  auto removeTasks = std::static_pointer_cast<AFRL::cmasi::RemoveTasks>(receivedLmcpMessage->m_object);
       Remove : constant RemoveTasks_Any := RemoveTasks_Any (Msg.Payload);
       C      : Int64_CMASI_Task_Maps.Cursor;
       use Int64_Sets;
    begin
       --  for (auto& taskId : removeTasks->getTaskList())
-      for Id of Remove.GetTaskList.all loop
+      for Id of Remove.getTaskList.all loop
          --  m_availableTasks.erase(taskId);
          C := Int64_CMASI_Task_Maps.Find (This.Configs.Available_Tasks, Key => Id);
          if Int64_CMASI_Task_Maps.Has_Element (This.Configs.Available_Tasks, C) then
@@ -440,7 +440,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       use Int64_Sets;
    begin
       --  m_availableInitializedTasks.insert(taskInitialized->getTaskID());
-      Include (This.Configs.Available_Initialized_Tasks, TaskInit.GetTaskID);
+      Include (This.Configs.Available_Initialized_Tasks, TaskInit.getTaskID);
 
       --  checkTasksInitialized();
       SPARK.Check_Tasks_Initialized (This);
@@ -454,12 +454,12 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto areaOfInterest = std::static_pointer_cast<afrl::impact::AreaOfInterest>(receivedLmcpMessage->m_object);
+      --  auto areaOfInterest = std::static_pointer_cast<AFRL::impact::AreaOfInterest>(receivedLmcpMessage->m_object);
       Area : constant AreaOfInterest_Any := AreaOfInterest_Any (Msg.Payload);
       use Int64_Sets;
    begin
       --  m_availableAreaOfInterestIds.insert(areaOfInterest->getAreaID());
-      Include (This.Configs.Available_Area_Of_Interest_Ids, Area.GetAreaID);
+      Include (This.Configs.Available_Area_of_Interest_Ids, Area.getAreaID);
    end Handle_AreaOfInterest_Msg;
 
    -------------------------------
@@ -470,12 +470,12 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto lineOfInterest = std::static_pointer_cast<afrl::impact::LineOfInterest>(receivedLmcpMessage->m_object);
+      --  auto lineOfInterest = std::static_pointer_cast<AFRL::impact::LineOfInterest>(receivedLmcpMessage->m_object);
       Line : constant LineOfInterest_Any := LineOfInterest_Any (Msg.Payload);
       use Int64_Sets;
    begin
       --  m_availableLineOfInterestIds.insert(lineOfInterest->getLineID());
-      Include (This.Configs.Available_Line_Of_Interest_Ids, Line.GetLineID);
+      Include (This.Configs.Available_Line_of_Interest_Ids, Line.getLineID);
    end Handle_LineOfInterest_Msg;
 
    --------------------------------
@@ -486,12 +486,12 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto pointOfInterest = std::static_pointer_cast<afrl::impact::PointOfInterest>(receivedLmcpMessage->m_object);
-      Point : constant PointofInterest_Any := PointofInterest_Any (Msg.Payload);
+      --  auto pointOfInterest = std::static_pointer_cast<AFRL::impact::PointOfInterest>(receivedLmcpMessage->m_object);
+      Point : constant PointOfInterest_Any := PointOfInterest_Any (Msg.Payload);
       use Int64_Sets;
    begin
       --  m_availablePointOfInterestIds.insert(pointOfInterest->getPointID());
-      Include (This.Configs.Available_Point_Of_Interest_Ids, Point.GetPointID);
+      Include (This.Configs.Available_Point_of_Interest_Ids, Point.getPointID);
    end Handle_PointofInterest_Msg;
 
    ---------------------------
@@ -502,12 +502,12 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto keepInZone = std::static_pointer_cast<afrl::cmasi::KeepInZone>(receivedLmcpMessage->m_object);
+      --  auto keepInZone = std::static_pointer_cast<AFRL::cmasi::KeepInZone>(receivedLmcpMessage->m_object);
       Zone : constant KeepInZone_Any := KeepInZone_Any (Msg.Payload);
       use Int64_Sets;
    begin
       --  m_availableKeepInZoneIds.insert(keepInZone->getZoneID());
-      Include (This.Configs.Available_KeepIn_Zones_Ids, Zone.GetZoneID);
+      Include (This.Configs.Available_KeepIn_Zones_Ids, Zone.getZoneID);
    end Handle_KeepInZone_Msg;
 
    ----------------------------
@@ -518,12 +518,12 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto keepOutZone = std::static_pointer_cast<afrl::cmasi::KeepOutZone>(receivedLmcpMessage->m_object);
+      --  auto keepOutZone = std::static_pointer_cast<AFRL::cmasi::KeepOutZone>(receivedLmcpMessage->m_object);
       Zone : constant KeepOutZone_Any := KeepOutZone_Any (Msg.Payload);
       use Int64_Sets;
    begin
       --  m_availableKeepOutZoneIds.insert(keepOutZone->getZoneID());
-      Include (This.Configs.Available_KeepOut_Zones_Ids, Zone.GetZoneID);
+      Include (This.Configs.Available_KeepOut_Zones_Ids, Zone.getZoneID);
    end Handle_KeepOutZone_Msg;
 
    --------------------------------
@@ -534,7 +534,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
      (This : in out Automation_Request_Validator_Service;
       Msg  : Any_LMCP_Message)
    is
-      --  auto operatingRegion = std::static_pointer_cast<afrl::cmasi::OperatingRegion>(receivedLmcpMessage->m_object);
+      --  auto operatingRegion = std::static_pointer_cast<AFRL::cmasi::OperatingRegion>(receivedLmcpMessage->m_object);
       Region         : constant OperatingRegion_Any := OperatingRegion_Any (Msg.Payload);
       C              : Int64_Operating_Region_Maps.Cursor;
       Inserted       : Boolean;
@@ -543,7 +543,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       --  m_availableOperatingRegions[operatingRegion->getID()] = operatingRegion;
       Int64_Operating_Region_Maps.Insert
         (This.Configs.Available_Operating_Regions,
-         Key       => Region.GetID,
+         Key       => Region.getID,
          New_Item  => Wrapped_Region,
          Position  => C,
          Inserted  => Inserted);
@@ -579,14 +579,14 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       use UniqueAutomationRequest_Lists;
    begin
       --  if(m_pendingRequests.empty()) return;
-       if Is_Empty (This.Pending_Requests) then
+      if Is_Empty (This.Pending_Requests) then
          return;
       end if;
 
-      Resp_Id := Resp.GetResponseID;
+      Resp_Id := Resp.getResponseID;
       --  if (m_pendingRequests.front()->getRequestID() == resp->getResponseID() &&
       --      m_sandboxMap.find(resp->getResponseID()) != m_sandboxMap.end())
-      if GetRequestId (First_Element (This.Pending_Requests).Content) = Resp_Id  and
+      if getRequestID (First_Element (This.Pending_Requests).Content) = Resp_Id  and
          Int64_Request_Details_Maps.Contains (This.Sandbox, Resp_Id)
       then
          --  SendResponse(resp);
@@ -618,8 +618,8 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       if C = No_Element then
          --  can't find a corresponding type, so just send out a normal one
          declare
-            --  auto cleanResponse = std::shared_ptr<afrl::cmasi::AutomationResponse>(resp->getOriginalResponse()->clone());
-            CleanResponse : constant Object_Any := new AutomationResponse'(Resp.GetOriginalResponse.all);
+            --  auto cleanResponse = std::shared_ptr<AFRL::cmasi::AutomationResponse>(resp->getOriginalResponse()->clone());
+            CleanResponse : constant Object_Any := new AutomationResponse'(Resp.getOriginalResponse.all);
          begin
             --  sendSharedLmcpObjectBroadcastMessage(cleanResponse);
             This.Send_Shared_LMCP_Object_Broadcast_Message (CleanResponse);
@@ -632,7 +632,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       Request := Element (This.Sandbox, C);
 
       --  if (m_sandboxMap[resp->getResponseID()].requestType == TASK_AUTOMATION_REQUEST)
-      if Request.RequestType = Task_Automation_Request then
+      if Request.requestType = Task_Automation_Request then
          declare
             --  auto taskResponse = std::make_shared<uxas::messages::task::TaskAutomationResponse>();
             TaskResponse : constant TaskAutomationResponse_Acc := new TaskAutomationResponse;
@@ -640,23 +640,23 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
             --  taskResponse->setOriginalResponse(resp->getOriginalResponse()->clone());
             TaskResponse.setOriginalResponse (new AutomationResponse'(Resp.getOriginalResponse.all));
             --  taskResponse->setResponseID(m_sandboxMap[resp->getResponseID()].taskRequestId);
-            TaskResponse.setResponseId (Request.Task_Request_Id);
+            TaskResponse.setResponseID (Request.Task_Request_Id);
 
             --  add FinalStates to task responses
             --  for(auto st : resp->getFinalStates())
             for St of Resp.getFinalStates.all loop
                --  taskResponse->getFinalStates().push_back(st->clone());
-               uxas.messages.lmcptask.TaskAutomationResponse.Vect_PlanningState_Acc.Append (TaskResponse.getFinalStates.all, new PlanningState'(St.all));
+               UxAS.Messages.lmcptask.TaskAutomationResponse.Vect_PlanningState_Acc.Append (TaskResponse.getFinalStates.all, new PlanningState'(St.all));
             end loop;
             --  sendSharedLmcpObjectBroadcastMessage(taskResponse);
             This.Send_Shared_LMCP_Object_Broadcast_Message (Object_Any (TaskResponse));
          end;
 
       --  else if (m_sandboxMap[resp->getResponseID()].requestType == AUTOMATION_REQUEST)
-      elsif Request.RequestType = Automation_Request then
+      elsif Request.requestType = Automation_Request then
          declare
-            --  auto cleanResponse = std::shared_ptr<afrl::cmasi::AutomationResponse>(resp->getOriginalResponse()->clone());
-            CleanResponse : constant Object_Any := new AutomationResponse'(Resp.GetOriginalResponse.all);
+            --  auto cleanResponse = std::shared_ptr<AFRL::cmasi::AutomationResponse>(resp->getOriginalResponse()->clone());
+            CleanResponse : constant Object_Any := new AutomationResponse'(Resp.getOriginalResponse.all);
          begin
             --  sendSharedLmcpObjectBroadcastMessage(cleanResponse);
             This.Send_Shared_LMCP_Object_Broadcast_Message (CleanResponse);
@@ -665,7 +665,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       else
          --  look up play and solution IDs
          declare
-            --  auto sandResponse = std::shared_ptr<afrl::impact::ImpactAutomationResponse> (new afrl::impact::ImpactAutomationResponse);
+            --  auto sandResponse = std::shared_ptr<AFRL::impact::ImpactAutomationResponse> (new AFRL::impact::ImpactAutomationResponse);
             SandResponse : constant ImpactAutomationResponse_Acc := new ImpactAutomationResponse;
          begin
             --  sandResponse->setPlayID(m_sandboxMap[resp->getResponseID()].playId);
@@ -673,7 +673,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
             --  sandResponse->setSolutionID(m_sandboxMap[resp->getResponseID()].solnId);
             SandResponse.setSolutionID (Request.Soln_Id);
             --  sandResponse->setTrialResponse(resp->getOriginalResponse()->clone());
-            SandResponse.setTrialResponse (new AutomationResponse'(Resp.GetOriginalResponse.all));
+            SandResponse.setTrialResponse (new AutomationResponse'(Resp.getOriginalResponse.all));
             --  sandResponse->setSandbox(true);
             SandResponse.setSandbox (True);
 
@@ -705,7 +705,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
       Request := new UniqueAutomationRequest'(Unwrap (First_Element (This.Pending_Requests).Content));
 
       --  // sending a new request, so clear out the old errors
-      --  m_errorResponse->setOriginalResponse(new afrl::cmasi::AutomationResponse);
+      --  m_errorResponse->setOriginalResponse(new AFRL::cmasi::AutomationResponse);
       This.Error_Response.setOriginalResponse (new AutomationResponse);
       --  m_errorResponse->setResponseID(uniqueAutomationRequest->getRequestID());
       This.Error_Response.setResponseID (Request.getRequestID);
@@ -721,12 +721,12 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
          use Ada.Strings.Unbounded;
          Message : Unbounded_String;
       begin
-         --  auto serviceStatus = std::make_shared<afrl::cmasi::ServiceStatus>();
+         --  auto serviceStatus = std::make_shared<AFRL::cmasi::ServiceStatus>();
          Service := new ServiceStatus;
-         --  serviceStatus->setStatusType(afrl::cmasi::ServiceStatusType::Information);
-         Service.SetStatusType (AFRL.CMASI.Enumerations.Information);
+         --  serviceStatus->setStatusType(AFRL::cmasi::ServiceStatusType::Information);
+         Service.setStatusType (AFRL.CMASI.Enumerations.Information);
 
-         --  auto keyValuePair = new afrl::cmasi::KeyValuePair;
+         --  auto keyValuePair = new AFRL::cmasi::KeyValuePair;
          KVP := new KeyValuePair;
          --  std::string message = "UniqueAutomationRequest[" + std::to_string(uniqueAutomationRequest->getRequestID()) + "] - sent";
          Message := To_Unbounded_String ("UniqueAutomationRequest[" & String_Utils.To_String (Request.getRequestID) & "] - sent");

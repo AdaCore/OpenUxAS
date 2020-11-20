@@ -1,28 +1,54 @@
 with Common;
 with AFRL.CMASI.Enumerations;
-with Afrl.Cmasi.AutomationRequest;
+with AFRL.CMASI.AutomationRequest;
 with AVTAS.LMCP.Types;
 with UxAS.Messages.Route.RouteResponse;            use UxAS.Messages.Route.RouteResponse;
-with uxas.messages.lmcptask.AssignmentCostMatrix;  use uxas.messages.lmcptask.AssignmentCostMatrix;
-with uxas.messages.lmcptask.TaskOptionCost;        use uxas.messages.lmcptask.TaskOptionCost;
-with uxas.messages.lmcptask.TaskAssignmentSummary; use uxas.messages.lmcptask.TaskAssignmentSummary;
-with uxas.messages.lmcptask.TaskAssignment;        use uxas.messages.lmcptask.TaskAssignment;
+with UxAS.Messages.lmcptask.AssignmentCostMatrix;  use UxAS.Messages.lmcptask.AssignmentCostMatrix;
+with UxAS.Messages.lmcptask.TaskOptionCost;        use UxAS.Messages.lmcptask.TaskOptionCost;
+with UxAS.Messages.lmcptask.TaskAssignmentSummary; use UxAS.Messages.lmcptask.TaskAssignmentSummary;
+with UxAS.Messages.lmcptask.TaskAssignment;        use UxAS.Messages.lmcptask.TaskAssignment;
 
 package body LMCP_Message_Conversions is
 
+   function As_RouteRequest_Acc (Msg : LMCP_Messages.RouteRequest'Class) return RouteRequest_Acc;
+
+   function As_RoutePlanRequest_Acc (Msg : LMCP_Messages.RoutePlanRequest'Class) return RoutePlanRequest_Acc;
+
+   function As_RouteResponse_Acc (Msg : LMCP_Messages.RouteResponse'Class) return RouteResponse_Acc;
+
+   function As_VehicleAction_Acc (Msg : LMCP_Messages.VehicleAction) return VehicleAction_Acc;
+
+   function As_KeyValuePair_Acc (Msg : LMCP_Messages.KeyValuePair) return KeyValuePair_Acc;
+
+   function As_Waypoint_Acc (Msg : LMCP_Messages.Waypoint) return Waypoint_Acc;
+
+   function As_TaskAssignment_Acc (Msg : LMCP_Messages.TaskAssignment) return TaskAssignment_Acc;
+   
+   function As_Location3D_Any (Msg : LMCP_Messages.Location3D) return Location3D_Any;
+
+   function As_TaskAssignmentSummary_Acc (Msg : LMCP_Messages.TaskAssignmentSummary'Class) 
+      return TaskAssignmentSummary_Acc;
+     
+   function As_TaskOptionCost_Acc (Msg : LMCP_Messages.TaskOptionCost)
+      return TaskOptionCost_Acc;     
+
+   function As_RoutePlanResponse_Acc (Msg : LMCP_Messages.RoutePlanResponse'Class) return RoutePlanResponse_Acc;
+
+   function As_AssignmentCostMatrix_Acc (Msg : LMCP_Messages.AssignmentCostMatrix'Class)
+      return AssignmentCostMatrix_Acc;
+       
    -------------------------------------
    -- As_AssignmentCostMatrix_Message --
    -------------------------------------
 
    function As_AssignmentCostMatrix_Message
-     (msg : not null AssignmentCostMatrix_Any)
+     (Msg : not null AssignmentCostMatrix_Any)
       return LMCP_Messages.AssignmentCostMatrix
    is
 
-      function As_TaskOptionCost
-        (Arg : not null TaskOptionCost_Acc)
-         return LMCP_Messages.TaskOptionCost
-      is
+      function As_TaskOptionCost (Arg : not null TaskOptionCost_Acc) return LMCP_Messages.TaskOptionCost;
+
+      function As_TaskOptionCost (Arg : not null TaskOptionCost_Acc) return LMCP_Messages.TaskOptionCost is
          Result : LMCP_Messages.TaskOptionCost;
       begin
          Result.VehicleID := Common.Int64 (Arg.getVehicleID);
@@ -30,7 +56,7 @@ package body LMCP_Message_Conversions is
          Result.InitialTaskOption := Common.Int64 (Arg.getIntialTaskOption);
          Result.DestinationTaskID := Common.Int64 (Arg.getDestinationTaskID);
          Result.DestinationTaskOption := Common.Int64 (Arg.getDestinationTaskOption);
-         Result.timeToGo := Common.Int64 (Arg.getTimeToGo);
+         Result.TimeToGo := Common.Int64 (Arg.getTimeToGo);
          return Result;
       end As_TaskOptionCost;
 
@@ -65,7 +91,7 @@ package body LMCP_Message_Conversions is
       use Common;
    begin
       for VA of Msg.getAssociatedTaskList.all loop
-        Result.AssociatedTaskList := Add (Result.AssociatedTaskList, Common.Int64 (VA));
+         Result.AssociatedTaskList := Add (Result.AssociatedTaskList, Common.Int64 (VA));
       end loop;
       return Result;
    end As_VehicleAction_Message;
@@ -78,9 +104,9 @@ package body LMCP_Message_Conversions is
       Result : constant VehicleAction_Acc := new VehicleAction;
    begin
       for Id : Common.Int64 of Msg.AssociatedTaskList loop
-         Result.getAssociatedTaskList.Append (AVTAS.LMCP.Types.int64 (Id));
+         Result.getAssociatedTaskList.Append (AVTAS.LMCP.Types.Int64 (Id));
       end loop;
-      return result;
+      return Result;
    end As_VehicleAction_Acc;
 
    -----------------------------
@@ -93,7 +119,7 @@ package body LMCP_Message_Conversions is
    is
       Result : LMCP_Messages.KeyValuePair;
    begin
-      Result.Key := Msg.GetKey;
+      Result.Key := Msg.getKey;
       Result.Value := Msg.getValue;
       return Result;
    end As_KeyValuePair_Message;
@@ -105,7 +131,7 @@ package body LMCP_Message_Conversions is
    function As_KeyValuePair_Acc (Msg : LMCP_Messages.KeyValuePair) return KeyValuePair_Acc is
       Result : constant KeyValuePair_Acc := new KeyValuePair;
    begin
-      Result.SetKey (Msg.Key);
+      Result.setKey (Msg.Key);
       Result.setValue (Msg.Value);
       return Result;
    end As_KeyValuePair_Acc;
@@ -124,31 +150,31 @@ package body LMCP_Message_Conversions is
       LMCP_Messages.Location3D (Result) := As_Location3D_Message (Location3D_Any (Msg));
 
       --  the Waypoint extension components
-      Result.Number := Common.Int64 (Msg.GetNumber);
+      Result.Number := Common.Int64 (Msg.getNumber);
       Result.NextWaypoint := Common.Int64 (Msg.getNextWaypoint);
-      Result.Speed := Common.Real32 (Msg.GetSpeed);
+      Result.Speed := Common.Real32 (Msg.getSpeed);
 
-      case Msg.GetSpeedType is
-         when Afrl.Cmasi.Enumerations.Airspeed    => Result.SpeedType := LMCP_Messages.Airspeed;
-         when Afrl.Cmasi.Enumerations.Groundspeed => Result.SpeedType := LMCP_Messages.Groundspeed;
+      case Msg.getSpeedType is
+         when AFRL.CMASI.Enumerations.Airspeed    => Result.SpeedType := LMCP_Messages.Airspeed;
+         when AFRL.CMASI.Enumerations.Groundspeed => Result.SpeedType := LMCP_Messages.Groundspeed;
       end case;
 
-      Result.ClimbRate := Common.Real32 (Msg.GetClimbRate);
+      Result.ClimbRate := Common.Real32 (Msg.getClimbRate);
 
-      case Msg.GetTurnType is
-         when Afrl.Cmasi.Enumerations.TurnShort => Result.TurnType := LMCP_Messages.TurnShort;
-         when Afrl.Cmasi.Enumerations.FlyOver   => Result.TurnType := LMCP_Messages.FlyOver;
+      case Msg.getTurnType is
+         when AFRL.CMASI.Enumerations.TurnShort => Result.TurnType := LMCP_Messages.TurnShort;
+         when AFRL.CMASI.Enumerations.FlyOver   => Result.TurnType := LMCP_Messages.FlyOver;
       end case;
 
       for VA of Msg.getVehicleActionList.all loop
          Result.VehicleActionList := LMCP_Messages.Add (Result.VehicleActionList, As_VehicleAction_Message (VA));
       end loop;
 
-      Result.ContingencyWaypointA := Common.Int64 (Msg.GetContingencyWaypointA);
-      Result.ContingencyWaypointB := Common.Int64 (Msg.GetContingencyWaypointB);
+      Result.ContingencyWaypointA := Common.Int64 (Msg.getContingencyWaypointA);
+      Result.ContingencyWaypointB := Common.Int64 (Msg.getContingencyWaypointB);
 
-      for Id of Msg.GetAssociatedTasks.all loop
-        Result.AssociatedTasks := Common.Add (Result.AssociatedTasks, Common.Int64 (Id));
+      for Id of Msg.getAssociatedTasks.all loop
+         Result.AssociatedTasks := Common.Add (Result.AssociatedTasks, Common.Int64 (Id));
       end loop;
 
       return Result;
@@ -159,12 +185,12 @@ package body LMCP_Message_Conversions is
    ---------------------
 
    function As_Waypoint_Acc (Msg : LMCP_Messages.Waypoint) return Waypoint_Acc is
-      Result : constant WayPoint_Acc := new AFRL.CMASI.Waypoint.Waypoint;
+      Result : constant Waypoint_Acc := new AFRL.CMASI.Waypoint.Waypoint;
    begin
       --  the Location3D components
-      Result.SetLatitude (AVTAS.LMCP.Types.Real64 (Msg.Latitude));
-      Result.SetLongitude (AVTAS.LMCP.Types.Real64 (Msg.Longitude));
-      Result.SetAltitude (AVTAS.LMCP.Types.Real32 (Msg.Altitude));
+      Result.setLatitude (AVTAS.LMCP.Types.Real64 (Msg.Latitude));
+      Result.setLongitude (AVTAS.LMCP.Types.Real64 (Msg.Longitude));
+      Result.setAltitude (AVTAS.LMCP.Types.Real32 (Msg.Altitude));
       case Msg.AltitudeType is
          when LMCP_Messages.AGL => Result.setAltitudeType (AFRL.CMASI.Enumerations.AGL);
          when LMCP_Messages.MSL => Result.setAltitudeType (AFRL.CMASI.Enumerations.MSL);
@@ -174,7 +200,7 @@ package body LMCP_Message_Conversions is
 
       Result.setNumber (AVTAS.LMCP.Types.Int64 (Msg.Number));
       Result.setNextWaypoint (AVTAS.LMCP.Types.Int64 (Msg.NextWaypoint));
-      Result.SetSpeed (AVTAS.LMCP.Types.Real32 (Msg.Speed));
+      Result.setSpeed (AVTAS.LMCP.Types.Real32 (Msg.Speed));
 
       case Msg.SpeedType is
          when LMCP_Messages.Airspeed    => Result.setSpeedType (AFRL.CMASI.Enumerations.Airspeed);
@@ -193,7 +219,7 @@ package body LMCP_Message_Conversions is
       end loop;
 
       Result.setContingencyWaypointA (AVTAS.LMCP.Types.Int64 (Msg.ContingencyWaypointA));
-      Result.SetContingencyWaypointB (AVTAS.LMCP.Types.Int64 (Msg.ContingencyWaypointB));
+      Result.setContingencyWaypointB (AVTAS.LMCP.Types.Int64 (Msg.ContingencyWaypointB));
 
       for Id of Msg.AssociatedTasks loop
          Result.getAssociatedTasks.Append (AVTAS.LMCP.Types.Int64 (Id));
@@ -212,16 +238,16 @@ package body LMCP_Message_Conversions is
    is
       Result : LMCP_Messages.Location3D;
    begin
-      Result.Latitude := Common.Real64 (Msg.GetLatitude);
-      Result.Longitude := Common.Real64 (Msg.GetLongitude);
-      Result.Altitude := Common.Real32 (Msg.GetAltitude);
+      Result.Latitude := Common.Real64 (Msg.getLatitude);
+      Result.Longitude := Common.Real64 (Msg.getLongitude);
+      Result.Altitude := Common.Real32 (Msg.getAltitude);
       --  For this enumeration type component we could use 'Val and 'Pos to
       --  convert the values, but that would not be robust in the face of
       --  independent changes to either one of the two enumeration type
       --  decls, especially the order. Therefore we do an explicit comparison.
-      case Msg.GetAltitudeType is
-         when Afrl.Cmasi.Enumerations.AGL => Result.AltitudeType := LMCP_Messages.AGL;
-         when Afrl.Cmasi.Enumerations.MSL => Result.AltitudeType := LMCP_Messages.MSL;
+      case Msg.getAltitudeType is
+         when AFRL.CMASI.Enumerations.AGL => Result.AltitudeType := LMCP_Messages.AGL;
+         when AFRL.CMASI.Enumerations.MSL => Result.AltitudeType := LMCP_Messages.MSL;
       end case;
       return Result;
    end As_Location3D_Message;
@@ -237,8 +263,8 @@ package body LMCP_Message_Conversions is
       Result.setLongitude (AVTAS.LMCP.Types.Real64 (Msg.Longitude));
       Result.setAltitude (AVTAS.LMCP.Types.Real32 (Msg.Altitude));
       case Msg.AltitudeType is
-         when LMCP_Messages.AGL => Result.SetAltitudeType (AFRL.CMASI.Enumerations.AGL);
-         when LMCP_Messages.MSL => Result.SetAltitudeType (AFRL.CMASI.Enumerations.MSL);
+         when LMCP_Messages.AGL => Result.setAltitudeType (AFRL.CMASI.Enumerations.AGL);
+         when LMCP_Messages.MSL => Result.setAltitudeType (AFRL.CMASI.Enumerations.MSL);
       end case;
 
       return Location3D_Any (Result);
@@ -256,11 +282,11 @@ package body LMCP_Message_Conversions is
       use LMCP_Messages;
    begin
       Result.RouteID := Common.Int64 (Msg.getRouteID);
-      for WP of Msg.GetWaypoints.all loop
+      for WP of Msg.getWaypoints.all loop
          Result.Waypoints := Add (Result.Waypoints, As_Waypoint_Message (WP));
       end loop;
-      Result.RouteCost := Common.Int64 (Msg.GetRouteCost);
-      for Error of Msg.GetRouteError.all loop
+      Result.RouteCost := Common.Int64 (Msg.getRouteCost);
+      for Error of Msg.getRouteError.all loop
          Result.RouteError := Add (Result.RouteError, As_KeyValuePair_Message (Error));
       end loop;
       return Result;
@@ -279,20 +305,20 @@ package body LMCP_Message_Conversions is
       use LMCP_Messages;
       use Common;
    begin
-      Result.ResponseID       := Int64 (Msg.GetResponseID);
-      Result.AssociatedTaskID := Int64 (Msg.GetAssociatedTaskID);
-      Result.VehicleID        := Int64 (Msg.GetVehicleID);
-      Result.OperatingRegion  := Int64 (Msg.GetOperatingRegion);
+      Result.ResponseID       := Int64 (Msg.getResponseID);
+      Result.AssociatedTaskID := Int64 (Msg.getAssociatedTaskID);
+      Result.VehicleID        := Int64 (Msg.getVehicleID);
+      Result.OperatingRegion  := Int64 (Msg.getOperatingRegion);
 
       for Plan of Msg.getRouteResponses.all loop
-         New_RoutePlan.RouteID   := Int64 (Plan.GetRouteID);
-         New_RoutePlan.RouteCost := Int64 (Plan.GetRouteCost);
+         New_RoutePlan.RouteID   := Int64 (Plan.getRouteID);
+         New_RoutePlan.RouteCost := Int64 (Plan.getRouteCost);
 
-         for WP of Plan.GetWaypoints.all loop
+         for WP of Plan.getWaypoints.all loop
             New_RoutePlan.Waypoints := Add (New_RoutePlan.Waypoints, As_Waypoint_Message (WP));
          end loop;
 
-         for Error of Plan.GetRouteError.all loop
+         for Error of Plan.getRouteError.all loop
             New_RoutePlan.RouteError := Add (New_RoutePlan.RouteError, As_KeyValuePair_Message (Error));
          end loop;
 
@@ -308,27 +334,27 @@ package body LMCP_Message_Conversions is
 
    function As_RoutePlanResponse_Acc (Msg : LMCP_Messages.RoutePlanResponse'Class) return RoutePlanResponse_Acc is
       Result         : constant RoutePlanResponse_Acc := new RoutePlanResponse;
-      New_Route_Plan : Uxas.Messages.Route.RoutePlan.RoutePlan_Acc;
+      New_Route_Plan : UxAS.Messages.Route.RoutePlan.RoutePlan_Acc;
    begin
-      Result.SetResponseID (AVTAS.LMCP.Types.Int64 (Msg.ResponseID));
-      Result.SetAssociatedTaskID (AVTAS.LMCP.Types.Int64 (Msg.AssociatedTaskID));
+      Result.setResponseID (AVTAS.LMCP.Types.Int64 (Msg.ResponseID));
+      Result.setAssociatedTaskID (AVTAS.LMCP.Types.Int64 (Msg.AssociatedTaskID));
       Result.setVehicleID (AVTAS.LMCP.Types.Int64 (Msg.VehicleID));
-      Result.SetOperatingRegion (AVTAS.LMCP.Types.Int64 (Msg.OperatingRegion));
+      Result.setOperatingRegion (AVTAS.LMCP.Types.Int64 (Msg.OperatingRegion));
 
       for Plan_Msg : LMCP_Messages.RoutePlan of Msg.RouteResponses loop
-         New_Route_Plan := new Uxas.Messages.Route.RoutePlan.RoutePlan;
+         New_Route_Plan := new UxAS.Messages.Route.RoutePlan.RoutePlan;
 
-         New_Route_Plan.SetRouteID (AVTAS.LMCP.Types.Int64 (Plan_Msg.RouteID));
-         New_Route_Plan.SetRouteCost (AVTAS.LMCP.Types.Int64 (Plan_Msg.RouteCost));
+         New_Route_Plan.setRouteID (AVTAS.LMCP.Types.Int64 (Plan_Msg.RouteID));
+         New_Route_Plan.setRouteCost (AVTAS.LMCP.Types.Int64 (Plan_Msg.RouteCost));
 
          --  waypoints...
          for WP : LMCP_Messages.Waypoint of Plan_Msg.Waypoints loop
-            New_Route_Plan.GetWaypoints.Append (Waypoint_Any (As_Waypoint_Acc (WP)));
+            New_Route_Plan.getWaypoints.Append (Waypoint_Any (As_Waypoint_Acc (WP)));
          end loop;
 
          --  route errors...
          for KVP : LMCP_Messages.KeyValuePair of Plan_Msg.RouteError loop
-            New_Route_Plan.GetRouteError.Append (As_KeyValuePair_Acc (KVP));
+            New_Route_Plan.getRouteError.Append (As_KeyValuePair_Acc (KVP));
          end loop;
 
          Result.getRouteResponses.Append (New_Route_Plan);
@@ -347,15 +373,15 @@ package body LMCP_Message_Conversions is
    is
       Result : LMCP_Messages.RouteRequest;
    begin
-      Result.RequestID        := Common.Int64 (Msg.GetRequestID);
-      Result.AssociatedTaskID := Common.Int64 (Msg.GetAssociatedTaskID);
+      Result.RequestID        := Common.Int64 (Msg.getRequestID);
+      Result.AssociatedTaskID := Common.Int64 (Msg.getAssociatedTaskID);
       for VID of Msg.getVehicleID.all loop
-        Result.VehicleID := Common.Add (Result.VehicleID, Common.Int64 (VID));
+         Result.VehicleID := Common.Add (Result.VehicleID, Common.Int64 (VID));
       end loop;
-      Result.OperatingRegion   := Common.Int64 (Msg.GetOperatingRegion);
-      Result.IsCostOnlyRequest := Msg.GetIsCostOnlyRequest;
+      Result.OperatingRegion   := Common.Int64 (Msg.getOperatingRegion);
+      Result.IsCostOnlyRequest := Msg.getIsCostOnlyRequest;
       for RC of Msg.getRouteRequests.all loop
-        Result.RouteRequests := LMCP_Messages.Add (Result.RouteRequests, As_RouteConstraints_Message (RouteConstraints_Any (RC)));
+         Result.RouteRequests := LMCP_Messages.Add (Result.RouteRequests, As_RouteConstraints_Message (RouteConstraints_Any (RC)));
       end loop;
 
       return Result;
@@ -374,7 +400,7 @@ package body LMCP_Message_Conversions is
          Result.getVehicleID.Append (AVTAS.LMCP.Types.Int64 (VID));
       end loop;
       Result.setOperatingRegion (AVTAS.LMCP.Types.Int64 (Msg.OperatingRegion));
-      Result.SetIsCostOnlyRequest (Msg.IsCostOnlyRequest);
+      Result.setIsCostOnlyRequest (Msg.IsCostOnlyRequest);
       for RC of Msg.RouteRequests loop
          Result.getRouteRequests.Append (As_RouteConstraints_Acc (RC));
       end loop;
@@ -392,13 +418,13 @@ package body LMCP_Message_Conversions is
    is
       Result : LMCP_Messages.RouteConstraints;
    begin
-      Result.RouteID         := Common.Int64 (Msg.GetRouteID);
-      Result.StartLocation   := As_Location3D_Message (Msg.GetStartLocation);
-      Result.StartHeading    := Common.Real32 (Msg.GetStartHeading);
-      Result.UseStartHeading := Msg.GetUseStartHeading;
-      Result.EndLocation     := As_Location3D_Message (Msg.GetEndLocation);
-      Result.EndHeading      := Common.Real32 (Msg.GetEndHeading);
-      Result.UseEndHeading   := Msg.GetUseEndHeading;
+      Result.RouteID         := Common.Int64 (Msg.getRouteID);
+      Result.StartLocation   := As_Location3D_Message (Msg.getStartLocation);
+      Result.StartHeading    := Common.Real32 (Msg.getStartHeading);
+      Result.UseStartHeading := Msg.getUseStartHeading;
+      Result.EndLocation     := As_Location3D_Message (Msg.getEndLocation);
+      Result.EndHeading      := Common.Real32 (Msg.getEndHeading);
+      Result.UseEndHeading   := Msg.getUseEndHeading;
       return Result;
    end As_RouteConstraints_Message;
 
@@ -409,7 +435,7 @@ package body LMCP_Message_Conversions is
    function As_RouteConstraints_Acc (Msg : LMCP_Messages.RouteConstraints) return RouteConstraints_Acc is
       Result : constant RouteConstraints_Acc := new RouteConstraints;
    begin
-      Result.SetRouteID (AVTAS.LMCP.Types.Int64 (Msg.RouteID));
+      Result.setRouteID (AVTAS.LMCP.Types.Int64 (Msg.RouteID));
       Result.setStartLocation (As_Location3D_Any (Msg.StartLocation));
       Result.setStartHeading (AVTAS.LMCP.Types.Real32 (Msg.StartHeading));
       Result.setUseStartHeading (Msg.UseStartHeading);
@@ -429,13 +455,13 @@ package body LMCP_Message_Conversions is
    is
       Result : LMCP_Messages.RoutePlanRequest;
    begin
-      Result.RequestID         := Common.Int64 (Msg.GetRequestID);
-      Result.AssociatedTaskID  := Common.Int64 (Msg.GetAssociatedTaskID);
-      Result.VehicleID         := Common.Int64 (Msg.GetVehicleID);
-      Result.OperatingRegion   := Common.Int64 (Msg.GetOperatingRegion);
-      Result.IsCostOnlyRequest := Msg.GetIsCostOnlyRequest;
+      Result.RequestID         := Common.Int64 (Msg.getRequestID);
+      Result.AssociatedTaskID  := Common.Int64 (Msg.getAssociatedTaskID);
+      Result.VehicleID         := Common.Int64 (Msg.getVehicleID);
+      Result.OperatingRegion   := Common.Int64 (Msg.getOperatingRegion);
+      Result.IsCostOnlyRequest := Msg.getIsCostOnlyRequest;
       for RC of Msg.getRouteRequests.all loop
-        Result.RouteRequests := LMCP_Messages.Add (Result.RouteRequests, As_RouteConstraints_Message (RouteConstraints_Any (RC)));
+         Result.RouteRequests := LMCP_Messages.Add (Result.RouteRequests, As_RouteConstraints_Message (RouteConstraints_Any (RC)));
       end loop;
       return Result;
    end As_RoutePlanRequest_Message;
@@ -447,13 +473,13 @@ package body LMCP_Message_Conversions is
    function As_RoutePlanRequest_Acc (Msg : LMCP_Messages.RoutePlanRequest'Class) return RoutePlanRequest_Acc is
       Result : constant RoutePlanRequest_Acc := new RoutePlanRequest;
    begin
-      Result.SetRequestID (AVTAS.LMCP.Types.Int64 (Msg.RequestID));
-      Result.SetAssociatedTaskID (AVTAS.LMCP.Types.Int64 (Msg.AssociatedTaskID));
-      Result.SetVehicleID (AVTAS.LMCP.Types.Int64 (Msg.VehicleID));
-      Result.SetOperatingRegion (AVTAS.LMCP.Types.Int64 (Msg.OperatingRegion));
+      Result.setRequestID (AVTAS.LMCP.Types.Int64 (Msg.RequestID));
+      Result.setAssociatedTaskID (AVTAS.LMCP.Types.Int64 (Msg.AssociatedTaskID));
+      Result.setVehicleID (AVTAS.LMCP.Types.Int64 (Msg.VehicleID));
+      Result.setOperatingRegion (AVTAS.LMCP.Types.Int64 (Msg.OperatingRegion));
       Result.setIsCostOnlyRequest (Msg.IsCostOnlyRequest);
       for RC : LMCP_Messages.RouteConstraints of Msg.RouteRequests loop
-         Result.GetRouteRequests.Append (As_RouteConstraints_Acc (RC));
+         Result.getRouteRequests.Append (As_RouteConstraints_Acc (RC));
       end loop;
       return Result;
    end As_RoutePlanRequest_Acc;
@@ -465,7 +491,7 @@ package body LMCP_Message_Conversions is
    function As_RouteResponse_Acc (Msg : LMCP_Messages.RouteResponse'Class) return RouteResponse_Acc is
       Result : constant RouteResponse_Acc := new RouteResponse;
    begin
-      Result.SetResponseID (AVTAS.LMCP.Types.Int64 (Msg.ResponseID));
+      Result.setResponseID (AVTAS.LMCP.Types.Int64 (Msg.ResponseID));
       for RP : LMCP_Messages.RoutePlanResponse of Msg.Routes loop
          Result.getRoutes.Append (As_RoutePlanResponse_Acc (RP));
       end loop;
@@ -479,7 +505,8 @@ package body LMCP_Message_Conversions is
 
    function As_UniqueAutomationRequest_Message
      (Msg : not null UniqueAutomationRequest_Any)
-      return LMCP_Messages.UniqueAutomationRequest is
+   return LMCP_Messages.UniqueAutomationRequest
+   is
       Result : LMCP_Messages.UniqueAutomationRequest;
       use Common;
       use all type LMCP_Messages.PlanningState_Seq;
@@ -487,7 +514,7 @@ package body LMCP_Message_Conversions is
       Result.RequestID := Int64 (Msg.all.getRequestID);
 
       for EntityId of Msg.all.getOriginalRequest.getEntityList.all loop
-         Result.EntityList := Add (Result.EntityList, int64 (EntityId));
+         Result.EntityList := Add (Result.EntityList, Int64 (EntityId));
       end loop;
 
       Result.OperatingRegion := Int64 (Msg.all.getOriginalRequest.getOperatingRegion);
@@ -496,7 +523,7 @@ package body LMCP_Message_Conversions is
          declare
             PlanningState : LMCP_Messages.PlanningState;
          begin
-            PlanningState.EntityId := Int64 (MsgPlanningState.all.getEntityId);
+            PlanningState.EntityID := Int64 (MsgPlanningState.all.getEntityID);
             PlanningState.PlanningPosition := As_Location3D_Message (MsgPlanningState.all.getPlanningPosition);
             PlanningState.PlanningHeading := Real32 (MsgPlanningState.all.getPlanningHeading);
 
@@ -511,31 +538,35 @@ package body LMCP_Message_Conversions is
       Result.TaskRelationships := Msg.all.getOriginalRequest.getTaskRelationships;
 
       return Result;
-
    end As_UniqueAutomationRequest_Message;
+   
+   ---------------------------
+   -- As_TaskAssignment_Acc --
+   ---------------------------
 
-   function As_TaskAssignment_Acc
-     (Msg : LMCP_Messages.TaskAssignment)
-      return TaskAssignment_Acc
-   is
+   function As_TaskAssignment_Acc (Msg : LMCP_Messages.TaskAssignment) return TaskAssignment_Acc is
       Result : TaskAssignment_Acc := new TaskAssignment;
-      use Avtas.lmcp.types;
+      use AVTAS.LMCP.Types;
    begin
-      Result.setTaskId (Int64 (Msg.TaskID));
-      Result.setOptionId (Int64 (Msg.OptionId));
+      Result.setTaskID (Int64 (Msg.TaskID));
+      Result.setOptionID (Int64 (Msg.OptionID));
       Result.setAssignedVehicle (Int64 (Msg.AssignedVehicle));
       Result.setTimeThreshold (Int64 (Msg.TimeThreshold));
       Result.setTimeTaskCompleted (Int64 (Msg.TimeTaskCompleted));
 
       return Result;
    end As_TaskAssignment_Acc;
+   
+   ----------------------------------
+   -- As_TaskAssignmentSummary_Acc --
+   ----------------------------------
 
    function As_TaskAssignmentSummary_Acc
      (Msg : LMCP_Messages.TaskAssignmentSummary'Class)
       return TaskAssignmentSummary_Acc
    is
       Result : TaskAssignmentSummary_Acc := new TaskAssignmentSummary;
-      use Avtas.lmcp.types;
+      use AVTAS.LMCP.Types;
    begin
       Result.setCorrespondingAutomationRequestID (Int64 (Msg.CorrespondingAutomationRequestID));
       Result.setOperatingRegion (Int64 (Msg.OperatingRegion));
@@ -559,17 +590,15 @@ package body LMCP_Message_Conversions is
       use all type Int64_Seq;
       use all type LMCP_Messages.TaskOption_Seq;
    begin
-      Result.CorrespondingAutomationRequestID :=
-        Int64 (Msg.getCorrespondingAutomationRequestID);
-      Result.TaskID :=
-        Int64 (Msg.getTaskId);
+      Result.CorrespondingAutomationRequestID := Int64 (Msg.getCorrespondingAutomationRequestID);
+      Result.TaskID := Int64 (Msg.getTaskID);
       Result.Composition := Msg.getComposition;
 
       for MsgOption of Msg.getOptions.all loop
          declare
             Option : LMCP_Messages.TaskOption;
          begin
-            Option.TaskID := Int64 (MsgOption.all.getTaskId);
+            Option.TaskID := Int64 (MsgOption.all.getTaskID);
             Option.OptionID := Int64 (MsgOption.all.getOptionID);
             Option.Cost := Int64 (MsgOption.all.getCost);
             Option.StartLocation :=
@@ -598,7 +627,7 @@ package body LMCP_Message_Conversions is
       return TaskOptionCost_Acc
    is
       Result : constant TaskOptionCost_Acc := new TaskOptionCost;
-      use Avtas.lmcp.types;
+      use AVTAS.LMCP.Types;
    begin
       Result.all.setVehicleID (Int64 (Msg.VehicleID));
       Result.all.setIntialTaskID (Int64 (Msg.InitialTaskID));
@@ -617,7 +646,7 @@ package body LMCP_Message_Conversions is
                                          return AssignmentCostMatrix_Acc
    is
       Result : constant AssignmentCostMatrix_Acc := new AssignmentCostMatrix;
-      use Avtas.lmcp.types;
+      use AVTAS.LMCP.Types;
    begin
       Result.all.setCorrespondingAutomationRequestID (Int64 (Msg.CorrespondingAutomationRequestID));
 

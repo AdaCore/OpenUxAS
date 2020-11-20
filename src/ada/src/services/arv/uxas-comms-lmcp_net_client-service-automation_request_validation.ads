@@ -1,15 +1,15 @@
 --  see OpenUxAS\src\Services\AutomationRequestValidatorService.h
 
 with DOM.Core;
-with AFRL.CMASI.LmcpTask;
-with UxAS.Messages.LmcpTask.UniqueAutomationRequest;
-with UxAS.Messages.LmcpTask.UniqueAutomationResponse;
+with AFRL.CMASI.lmcpTask;
+with UxAS.Messages.lmcptask.UniqueAutomationRequest;
+with UxAS.Messages.lmcptask.UniqueAutomationResponse;
 
 with Ada.Containers.Formal_Hashed_Maps;
 with Ada.Containers.Formal_Doubly_Linked_Lists;
-with UxAS.Messages.LmcpTask.UniqueAutomationRequest.SPARK_Boundary; use UxAS.Messages.LmcpTask.UniqueAutomationRequest.SPARK_Boundary;
+with UxAS.Messages.lmcptask.UniqueAutomationRequest.SPARK_Boundary; use UxAS.Messages.lmcptask.UniqueAutomationRequest.SPARK_Boundary;
 with AFRL.CMASI.OperatingRegion.SPARK_Boundary;                     use AFRL.CMASI.OperatingRegion.SPARK_Boundary;
-with AFRL.CMASI.LmcpTask.SPARK_Boundary;                            use AFRL.CMASI.LmcpTask.SPARK_Boundary;
+with AFRL.CMASI.lmcpTask.SPARK_Boundary;                            use AFRL.CMASI.lmcpTask.SPARK_Boundary;
 with Common_Formal_Containers;                                      use Common_Formal_Containers;
 
 package UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation is
@@ -36,8 +36,8 @@ private
    --  ServiceBase::CreationRegistrar<AutomationRequestValidatorService> s_registrar;
    --  see the package body executable part
 
-   use UxAS.Messages.LmcpTask.UniqueAutomationRequest;
-   use UxAS.Messages.LmcpTask.UniqueAutomationResponse;
+   use UxAS.Messages.lmcptask.UniqueAutomationRequest;
+   use UxAS.Messages.lmcptask.UniqueAutomationResponse;
 
    type Automation_Request_Type is
      (Automation_Request,
@@ -75,7 +75,7 @@ private
 
    package Int64_CMASI_Task_Maps is new Ada.Containers.Formal_Hashed_Maps
      (Key_Type     => Int64,
-      Element_Type => afrl.cmasi.lmcptask.spark_boundary.Task_Kind_And_Id,  --- TODO: maybe not classwide???
+      Element_Type => AFRL.CMASI.lmcpTask.SPARK_Boundary.Task_Kind_And_Id,  --- TODO: maybe not classwide???
       Hash         => Int64_Hash);
 
    Int64_CMASI_Task_Maps_Max_Capacity : constant := 200; -- arbitrary
@@ -121,10 +121,10 @@ private
       --  std::unordered_set<int64_t> m_availablePointOfInterestIds;
       Available_Point_of_Interest_Ids : Int64_Set;
 
-      --  std::unordered_map<int64_t, std::shared_ptr<afrl::cmasi::OperatingRegion> > m_availableOperatingRegions;
+      --  std::unordered_map<int64_t, std::shared_ptr<AFRL::cmasi::OperatingRegion> > m_availableOperatingRegions;
       Available_Operating_Regions : Operating_Region_Maps;
 
-      -- std::unordered_map<int64_t, std::shared_ptr<afrl::cmasi::Task> > m_availableTasks;
+      -- std::unordered_map<int64_t, std::shared_ptr<AFRL::cmasi::Task> > m_availableTasks;
       Available_Tasks : CMASI_Task_Map;
 
       --  std::unordered_set<int64_t> m_availableInitializedTasks;
@@ -180,12 +180,12 @@ private
       Received_Message : not null Any_LMCP_Message;
       Should_Terminate : out Boolean);
 
-   --  void HandleAutomationRequest(std::shared_ptr<avtas::lmcp::Object>& autoRequest);
+   --  void HandleAutomationRequest(std::shared_ptr<AVTAS::lmcp::Object>& autoRequest);
    procedure Handle_Automation_Request
      (This    : in out Automation_Request_Validator_Service;
       Request : Object_Any);
 
-   --  void HandleAutomationResponse(std::shared_ptr<avtas::lmcp::Object>& autoResponse);
+   --  void HandleAutomationResponse(std::shared_ptr<AVTAS::lmcp::Object>& autoResponse);
    procedure Handle_Automation_Response
      (This     : in out Automation_Request_Validator_Service;
       Response : Object_Any);

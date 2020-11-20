@@ -31,7 +31,7 @@ package Route_Aggregator with SPARK_Mode is
    type Route_Aggregator_Configuration_Data is record
       m_entityStates     : Int64_Seq;
       m_entityStatesInfo : EntityState_Map;
-      --      std::unordered_map<int64_t, std::shared_ptr<afrl::cmasi::EntityConfiguration> > m_entityConfigurations;
+      --      std::unordered_map<int64_t, std::shared_ptr<AFRL::cmasi::EntityConfiguration> > m_entityConfigurations;
       m_airVehicles      : Int64_Set;
       m_groundVehicles   : Int64_Set;
       m_surfaceVehicles  : Int64_Set;

@@ -1,15 +1,15 @@
 with UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation; use UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation;
-with afrl.impact.AngledAreaSearchTask;
-with afrl.impact.ImpactLineSearchTask;
-with afrl.impact.ImpactPointSearchTask;
-with afrl.cmasi.lmcpTask.SPARK_Boundary; use afrl.cmasi.lmcpTask.SPARK_Boundary;
-with afrl.impact.ImpactAutomationRequest; use afrl.impact.ImpactAutomationRequest;
-with afrl.impact.ImpactAutomationRequest.SPARK_Boundary; use afrl.impact.ImpactAutomationRequest.SPARK_Boundary;
-with uxas.messages.lmcptask.TaskAutomationRequest; use uxas.messages.lmcptask.TaskAutomationRequest;
-with uxas.messages.lmcptask.TaskAutomationRequest.SPARK_Boundary; use uxas.messages.lmcptask.TaskAutomationRequest.SPARK_Boundary;
-with afrl.cmasi.AutomationRequest; use afrl.cmasi.AutomationRequest;
-with afrl.cmasi.AutomationRequest.SPARK_Boundary; use afrl.cmasi.AutomationRequest.SPARK_Boundary;
-with avtas.lmcp.object.SPARK_Boundary; use avtas.lmcp.object.SPARK_Boundary;
+with AFRL.impact.AngledAreaSearchTask;
+with AFRL.impact.ImpactLineSearchTask;
+with AFRL.impact.ImpactPointSearchTask;
+with AFRL.CMASI.lmcptask.SPARK_Boundary; use AFRL.CMASI.lmcptask.SPARK_Boundary;
+with AFRL.impact.ImpactAutomationRequest; use AFRL.impact.ImpactAutomationRequest;
+with AFRL.impact.ImpactAutomationRequest.SPARK_Boundary; use AFRL.impact.ImpactAutomationRequest.SPARK_Boundary;
+with UxAS.Messages.lmcptask.TaskAutomationRequest; use UxAS.Messages.lmcptask.TaskAutomationRequest;
+with UxAS.Messages.lmcptask.TaskAutomationRequest.SPARK_Boundary; use UxAS.Messages.lmcptask.TaskAutomationRequest.SPARK_Boundary;
+with AFRL.CMASI.AutomationRequest; use AFRL.CMASI.AutomationRequest;
+with AFRL.CMASI.AutomationRequest.SPARK_Boundary; use AFRL.CMASI.AutomationRequest.SPARK_Boundary;
+with AVTAS.LMCP.object.SPARK_Boundary; use AVTAS.LMCP.object.SPARK_Boundary;
 with Ada.Containers; use Ada.Containers;
 
 private
@@ -258,7 +258,7 @@ package UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SPARK w
      (UniqueAutomationRequest_Lists.Formal_Model.M.Length (K) = UniqueAutomationRequest_Lists.Formal_Model.M.Length (L)
       and then
         (for all I in 1 .. UniqueAutomationRequest_Lists.Formal_Model.M.Length (K) =>
-              UxAS.Messages.LmcpTask.UniqueAutomationRequest.SPARK_Boundary.Same_Requests
+              UxAS.Messages.lmcptask.UniqueAutomationRequest.SPARK_Boundary.Same_Requests
                 (UniqueAutomationRequest_Lists.Formal_Model.Element (K, I).Content,
                  UniqueAutomationRequest_Lists.Formal_Model.Element (L, I).Content)))
      with Ghost;

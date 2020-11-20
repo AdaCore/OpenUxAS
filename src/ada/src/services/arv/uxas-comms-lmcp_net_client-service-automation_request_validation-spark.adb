@@ -1,8 +1,8 @@
 
 with Bounded_Dynamic_Strings;
-with afrl.cmasi.KeyValuePair;       use afrl.cmasi.KeyValuePair;
+with AFRL.CMASI.KeyValuePair;       use AFRL.CMASI.KeyValuePair;
 with Ada.Strings.Unbounded;
-with afrl.cmasi.AutomationResponse; use afrl.cmasi.AutomationResponse;
+with AFRL.CMASI.AutomationResponse; use AFRL.CMASI.AutomationResponse;
 
 package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SPARK with SPARK_Mode is
 
@@ -162,7 +162,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SP
 
                --  re-set the task initialized check timer
                --  [Claire] ToDo : I could not find TimerManager
-               --  uxas.Common.TimerManager::getInstance().startSingleShotTimer(m_taskInitTimerId, m_maxResponseTime_ms);
+               --  UxAS.Common.TimerManager::getInstance().startSingleShotTimer(m_taskInitTimerId, m_maxResponseTime_ms);
                pragma Compile_time_Warning (Standard.True, "Check_Tasks_Initialized is incomplete");
             end if;
          end;
@@ -176,7 +176,7 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SP
       --      {
       --          // if timer not started (i.e. not currently waiting for a response),
       --          // then send the one that just got added
-      --          if(!uxas::common::TimerManager::getInstance().isTimerActive(m_responseTimerId))
+      --          if(!UxAS::common::TimerManager::getInstance().isTimerActive(m_responseTimerId))
       --          {
       --              sendNextRequest();
          declare
@@ -196,17 +196,17 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SP
          end;
       --          }
       --      }
-      --      else if(!uxas::common::TimerManager::getInstance().isTimerActive(m_taskInitTimerId) && !m_requestsWaitingForTasks.empty())
+      --      else if(!UxAS::common::TimerManager::getInstance().isTimerActive(m_taskInitTimerId) && !m_requestsWaitingForTasks.empty())
       --      {
       --          // top of task-init queue is still not ready, start timer if not already started
-      --          uxas::common::TimerManager::getInstance().startSingleShotTimer(m_taskInitTimerId, m_maxResponseTime_ms);
+      --          UxAS::common::TimerManager::getInstance().startSingleShotTimer(m_taskInitTimerId, m_maxResponseTime_ms);
       --      }
       end if;
 
       --      if(m_requestsWaitingForTasks.empty())
       --      {
       --          // all tasks have been initialized, so disable timer
-      --          uxas::common::TimerManager::getInstance().disableTimer(m_taskInitTimerId, 0);
+      --          UxAS::common::TimerManager::getInstance().disableTimer(m_taskInitTimerId, 0);
       --      }
    end Check_Tasks_Initialized;
 
@@ -378,14 +378,14 @@ package body UxAS.Comms.LMCP_Net_Client.Service.Automation_Request_Validation.SP
            new UniqueAutomationResponse;
       begin
          --  [Claire] ToDo : What is that?
-         --          UXAS_LOG_WARN(reasonForFailure.str());
+         --          UxAS_LOG_WARN(reasonForFailure.str());
          KValuePair.setKey (Ada.Strings.Unbounded.To_Unbounded_String ("RequestValidator"));
          KValuePair.setValue (Ada.Strings.Unbounded.To_Unbounded_String (Bounded_Dynamic_Strings.Value (ReasonForFailure)));
          if ErrResponse.getOriginalResponse = null then
             ErrResponse.setOriginalResponse (new AutomationResponse);
          end if;
          ErrResponse.setResponseID (getRequestID (Request));
-         afrl.cmasi.AutomationResponse.Vect_KeyValuePair_Acc.Append (ErrResponse.GetOriginalResponse.GetInfo.all, KValuePair);
+         AFRL.CMASI.AutomationResponse.Vect_KeyValuePair_Acc.Append (ErrResponse.GetOriginalResponse.GetInfo.all, KValuePair);
          Send_Response(This, ErrResponse);
          ErrResponseID := ErrResponse.getResponseID;
       end Send_Error_Response;
